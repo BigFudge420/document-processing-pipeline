@@ -27,14 +27,14 @@ const uploadController = (req : Request, res : Response, next : NextFunction) =>
                         console.error('Multer error', err.code, err.message)
                 }
             }
-            else if (err.message = 'INVALID_FILE_TYPE') {
+            else if (err.message === 'INVALID_FILE_TYPE') {
                 return res.status(415).json({error : 'Unsupported media type'})
             }
-            else if (err.message = 'EMPTY_FILE') {
+            else if (err.message === 'EMPTY_FILE') {
                 return res.status(400).json({error : 'File cannot be empty'})
             }
             
-            console.log('Internal server error', err.code, err.message)
+            console.error('Internal server error', err.code, err.message)
             return res.status(500).json({error : 'Internal server error'})
         }
 
@@ -48,9 +48,13 @@ const uploadController = (req : Request, res : Response, next : NextFunction) =>
 
             res.status(200).json({jobId : createdJob.id})
         } catch (error) {
-            if (error instanceof Prisma.PrismaClientKnownRequestError)
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
                 console.error('Prisma error:', error.code, error.message)
+            } else {
+                console.error('Unexpected error:', error)
             }
+            return res.status(500).json({error : 'Internal server error'})
+        }
     })
 }
 
