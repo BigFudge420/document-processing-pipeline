@@ -14,7 +14,7 @@ const fileSchema = z.object({
         "image/bmp",
         "image/x-portable-anymap"
     ]),
-    orginalname : z.string().min(1)
+    originalname : z.string().min(1)
 })
 
 const allowedExtensions = [
