@@ -1,7 +1,6 @@
 import { createWorker, createScheduler } from 'tesseract.js';
 import type { DocumentJob } from '@prisma/client';
 import { createPrisma } from "./src/db/createPrisma";
-import 'dotenv/config'
 import fs from 'fs'
 import { PrismaClient } from '@prisma/client/extension';
 

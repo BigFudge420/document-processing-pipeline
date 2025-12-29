@@ -1,9 +1,9 @@
-import { Request, Express } from "express"
+import { Request } from "express"
 import path from 'path'
 
 type MulterFile = Express.Multer.File
 
-const fileFilter = (_req : Request, file : MulterFile, cb : Function) => {
+const fileFilter = (req : Request, file : MulterFile, cb : Function) => {
     const allowedMimeTypes = ['image/png', 'image/jpeg']
     const allowedExt = ['.png', '.jpg', '.jpeg']
 

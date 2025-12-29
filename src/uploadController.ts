@@ -20,7 +20,7 @@ const uploadController = (req : Request, res : Response, next : NextFunction) =>
                     case 'LIMIT_FILE_SIZE':
                         return res.status(413).json({error : 'Content too large'})
 
-                    case 'MISSING_FIELD_NAME':
+                    case 'LIMIT_UNEXPECTED_FILE':
                         return res.status(400).json({error : 'Unexpected field'})
                     
                     default: 
@@ -30,19 +30,18 @@ const uploadController = (req : Request, res : Response, next : NextFunction) =>
             else if (err.message === 'INVALID_FILE_TYPE') {
                 return res.status(415).json({error : 'Unsupported media type'})
             }
-            else if (err.message === 'EMPTY_FILE') {
-                return res.status(400).json({error : 'File cannot be empty'})
-            }
-            
             console.error('Internal server error', err.code, err.message)
             return res.status(500).json({error : 'Internal server error'})
         }
 
+        if (!req.file) {
+            return res.status(400).json({error : 'Document not provided'})
+        }
         try {
             const createdJob = await prisma.documentJob.create({
                 data : {
                     status : 'pending',
-                    filePath : req.file?.path!
+                    filePath : req.file?.path
                 }
             })
 
