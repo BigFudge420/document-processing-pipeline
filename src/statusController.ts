@@ -10,7 +10,7 @@ const statusController = async (req : Request, res : Response, next : NextFuncti
     console.log('Running')
 
     if (!parsed.success) {
-        res.status(400).json({error : 'Bad request'})
+        return res.status(400).json({error : 'Bad request'})
     }
     
     const id = parsed.data
@@ -22,14 +22,11 @@ const statusController = async (req : Request, res : Response, next : NextFuncti
             return res.status(404).json({error : 'Job not found'})
         }
 
-        const text = job.extractedText ? job.extractedText.replace(/(\r\n|\n|\r)/g, "") : ''
-
-
         return res.status(200).json({
             data  : {
-                jobId : job?.id,
-                status : job?.status,
-                text
+                jobId : job.id,
+                status : job.status,
+                text : job.extractedText
             }
         })
 

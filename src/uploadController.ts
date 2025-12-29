@@ -3,6 +3,7 @@ import multer, { MulterError } from 'multer'
 import fileFilter from './fileFilter'
 import { prisma } from './prisma.main'
 import { Prisma } from "@prisma/client"
+import fs from 'fs'
 
 const uploadController = (req : Request, res : Response, next : NextFunction) => {
     const upload = multer({
@@ -45,8 +46,12 @@ const uploadController = (req : Request, res : Response, next : NextFunction) =>
                 }
             })
 
-            res.status(200).json({jobId : createdJob.id})
+            res.status(202).json({jobId : createdJob.id})
         } catch (error) {
+            if (req.file.path) {
+                await fs.promises.unlink(req.file.path)
+            }
+
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
                 console.error('Prisma error:', error.code, error.message)
             } else {

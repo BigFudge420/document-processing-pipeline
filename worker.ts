@@ -2,7 +2,7 @@ import { createWorker, createScheduler } from 'tesseract.js';
 import type { DocumentJob } from '@prisma/client';
 import { createPrisma } from "./src/db/createPrisma";
 import fs from 'fs'
-import { PrismaClient } from '@prisma/client/extension';
+import { PrismaClient } from '@prisma/client';
 
 const CONCURRENCY = 3
 
@@ -56,12 +56,18 @@ async function pollOnce() : Promise<DocumentJob[]> {
     })
 
     const tasks = files.map(async (file : DocumentJob) => {
+        const fiveMinsAgo = new Date( Date.now() - 5 * 60 * 1000)
+
         try {
             const claim = await prisma.documentJob.updateMany({
                 where : {
                     OR : [
                         {status : 'pending'},
-                        {status : 'failed'}
+                        {status : 'failed'},
+                        {
+                            status : 'processing',
+                            startedAt : { lt : fiveMinsAgo}
+                        }
                     ],
                     id : file.id,
                     attempts : {lt : 3}
