@@ -12,6 +12,32 @@ let prisma : PrismaClient
 async function init () {
     prisma = createPrisma()
 
+    process.on('SIGTERM', async () => {
+        try {
+            await prisma.$disconnect()    
+            await scheduler.terminate()
+    
+        } catch (err) {
+            console.error('Cleanup error: ', err)
+        }
+        finally {
+            process.exit(0)
+        }
+    })
+    
+    process.on('SIGINT', async () => {
+        try {
+            await prisma.$disconnect()    
+            await scheduler.terminate()
+    
+        } catch (err) {
+            console.error('Cleanup error: ', err)
+        }
+        finally {
+            process.exit(0)
+        }
+    })
+
     for (let i = 0; i < CONCURRENCY; i++){
         const worker = await createWorker('eng')
         scheduler.addWorker(worker)
