@@ -22,13 +22,7 @@ const statusController = async (req : Request, res : Response, next : NextFuncti
             return res.status(404).json({error : 'Job not found'})
         }
 
-        return res.status(200).json({
-            data  : {
-                jobId : job.id,
-                status : job.status,
-                text : job.extractedText
-            }
-        })
+        return res.status(200).json({job})
 
     }
     catch (err) {
