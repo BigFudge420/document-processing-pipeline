@@ -24,7 +24,7 @@ model DocumentJob {
   startedAt DateTime?
   completedAt DateTime? 
 
-  @@index([status])
+  @@index([id, status, attempts, startedAt])
 }
 
 enum JobStatus {

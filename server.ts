@@ -10,7 +10,7 @@ const server = app.listen(config.port, () => {
 })
 
 function initProcess() {
-    return fork('./worker.ts', {
+    return fork('./workerLogic.ts', {
         env : {
             ...process.env
         },

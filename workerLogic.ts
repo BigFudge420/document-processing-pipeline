@@ -1,12 +1,12 @@
-import { createWorker, createScheduler } from 'tesseract.js';
 import type { DocumentJob } from '@prisma/client';
 import { createPrisma } from "./src/db/createPrisma";
 import fs from 'fs'
 import { PrismaClient } from '@prisma/client';
+import runOCR from './src/runOCR';
+import config from './src/config';
 
-const CONCURRENCY = 3
-
-const scheduler = createScheduler()
+const CONCURRENCY = config.concurrency
+const TIMEOUT_MS = config.timeoutMS
 
 let prisma : PrismaClient
 async function init () {
@@ -15,7 +15,6 @@ async function init () {
     process.on('SIGTERM', async () => {
         try {
             await prisma.$disconnect()    
-            await scheduler.terminate()
     
         } catch (err) {
             console.error('Cleanup error: ', err)
@@ -28,7 +27,6 @@ async function init () {
     process.on('SIGINT', async () => {
         try {
             await prisma.$disconnect()    
-            await scheduler.terminate()
     
         } catch (err) {
             console.error('Cleanup error: ', err)
@@ -37,11 +35,6 @@ async function init () {
             process.exit(0)
         }
     })
-
-    for (let i = 0; i < CONCURRENCY; i++){
-        const worker = await createWorker('eng')
-        scheduler.addWorker(worker)
-    }
 
     workerLoop()
 }
@@ -82,7 +75,7 @@ async function pollOnce() : Promise<DocumentJob[]> {
     })
 
     const tasks = files.map(async (file : DocumentJob) => {
-        const fiveMinsAgo = new Date( Date.now() - 5 * 60 * 1000)
+        const fiveMinsAgo = new Date( Date.now() - TIMEOUT_MS)
 
         try {
             const claim = await prisma.documentJob.updateMany({
@@ -119,7 +112,7 @@ async function pollOnce() : Promise<DocumentJob[]> {
 async function startProcess(files : DocumentJob []) {
     const tasks = files.map(async (file) => {
         try {
-            const { data : { text }} = await scheduler.addJob('recognize', file.filePath)
+            const text = await runOCR(file, TIMEOUT_MS)
                 
             await prisma.documentJob.update({
                 where : {

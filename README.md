@@ -148,6 +148,8 @@ PORT=3000
 |----------|-------------|---------|----------|
 | `DATABASE_URL` | PostgreSQL connection string | - | ✅ Yes |
 | `PORT` | Server port | `3000` | ❌ No |
+| `CONCURRENCY` | Max number of concurrent workers | `3` | ❌ No |
+| `TIMEOUT_MS` | NUmber of seconds to wait before terminating workers | `5 minutes` | ❌ No |
 
 ---
 
